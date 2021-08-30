@@ -1,0 +1,758 @@
+-- Basic Framework Plugin
+-- by QSC
+-- October 2020
+
+-- Information block for the plugin
+PluginInfo = {
+  Name = "Allen & Heath~Qu Mixer",
+  Version = "0.0",
+  BuildVersion = "1.0.0.127",
+  Id = "5b589c6d-5137-492a-a163-2bbfd2f949d4",
+  Author = "Johnny Zhu",
+  Description = "Johnny's first plugin"  
+}
+
+-- Define the color of the plugin object in the design
+function GetColor(props)
+  return { 0, 50, 200 }
+end
+
+-- The name that will initially display when dragged into a design
+function GetPrettyName(props)
+  return "Allen & Heath~QU Mixer, version " .. PluginInfo.Version
+end
+
+-- Optional function used if plugin has multiple pages
+PageNames = { "Setup", "Control" }  --List the pages within the plugin
+function GetPages(props)
+  local pages = {}
+  for ix,name in ipairs(PageNames) do
+    table.insert(pages, {name = PageNames[ix]})
+  end
+  return pages
+end
+
+-- Optional function to define model if plugin supports more than one model
+function GetModel(props)
+  local model = {}
+  if props.Model ~= nil and props.Model.Value ~= "" then
+    table.insert(model, { props.Model.Value } )
+  else
+    table.insert(model, { "Base Model" } )
+  end
+ return model
+end
+
+-- Define User configurable Properties of the plugin
+function GetProperties()
+  local props = {}
+  table.insert(props, {
+    Name = "Debug Print",
+    Type = "enum",
+    Choices = {"None", "Tx/Rx", "Tx", "Rx", "Function Calls", "All"},
+    Value = "None"
+  })
+  table.insert(props, {
+    Name = "Model", 
+    Type = "enum", 
+    --Choices = {"Qu-16", "Qu-24", "Qu-32", "Qu-SB", "Qu-Pac"}, Value = "Qu-32"
+    Choices = {"Qu-32", "Other"}, Value = "Qu-32"
+  })
+  return props
+end
+
+-- Optional function to define pins on the plugin that are not connected to a Control
+function GetPins(props)
+  local pins = {}
+  --[[ table.insert(pins,{
+    Name = "Audio Output",
+    Direction = "output",
+  }) ]]
+  return pins
+end
+
+-- Optional function to update available properties when properties are altered by the user
+function RectifyProperties(props)
+  if props.plugin_show_debug.Value == false then 
+    props["Debug Print"].IsHidden = true 
+  end
+  return props
+end
+
+-- Optional function to define components used within the plugin
+function GetComponents(props)
+  local components = {}
+  table.insert(components,{
+    Name = "main_mixer",
+    Type = "mixer",
+    Properties =   
+    {
+      ["n_inputs"] = 8,
+      ["n_outputs"] = 1,
+    }
+  })
+  return components
+end
+
+-- Optional function to define wiring of components used within the plugin
+function GetWiring(props)
+  local wiring = {}
+  -- table.insert( wiring, { "Audio Output", "main_mixer Output 1" } )
+  return wiring
+end
+
+-- Defines the Controls used within the plugin
+function GetControls(props)
+  local ctrls = {}
+  table.insert(ctrls, {
+    Name = "SceneButton",
+    ControlType = "Button",
+    ButtonType = "Momentary",
+    Count = 25,
+    --UserPin = true,
+    --PinStyle = "Input",
+    Icon = "<NONE>"
+  })
+  table.insert(ctrls, {
+    Name = "SceneKnob",
+    ControlType = "Knob",
+    ControlUnit = "Integer",
+    Count = 1,
+    Min = 1, 
+    Max = 100,
+    UserPin = true,
+    PinStyle = "Both"
+  })
+  table.insert(ctrls, {
+    Name = "InputMute",
+    ControlType = "Button",
+    ButtonType = "Toggle",
+    Count = 35,
+    --UserPin = true,
+    --PinStyle = "Both",
+    Icon = "<NONE>"
+  })
+  table.insert(ctrls, {
+    Name = "InputFader",
+    ControlType = "Knob",
+    ButtonType = "Fader",
+    Count = 35,
+    Min = 0, 
+    Max = 127,
+    --UserPin = true,
+    --PinStyle = "Both",
+  })
+  table.insert(ctrls, {
+    Name = "OutputMute",
+    ControlType = "Button",
+    ButtonType = "Toggle",
+    Count = 14,
+    --UserPin = true,
+    --PinStyle = "Both",
+    Icon = "<NONE>"
+  })
+  table.insert(ctrls, {
+    Name = "OutputFader",
+    ControlType = "Knob",
+    ButtonType = "Fader",
+    Count = 35,
+    Min = 0, 
+    Max = 127,
+    --UserPin = true,
+    --PinStyle = "Both",
+  })
+  
+  
+  --**Controls on Page "Setup"
+  table.insert(ctrls, {
+    Name = "IP Address",
+    ControlType = "Text",
+    Count = 1,
+    DefaultValue = "127.0.0.1"
+  })
+  table.insert(ctrls, {
+    Name = "Port",
+    ControlType = "Knob",
+    ControlUnit = "Integer",
+    Count = 1,
+    Min = 1, 
+    Max = 65535,
+    DefaultValue = 51325
+  })
+  table.insert(ctrls, {
+    Name = "Status",
+    ControlType = "Indicator", 
+    IndicatorType = "Status",
+    Count = 1,
+    UserPin = true,
+    PinStyle = "Output"
+  })
+  table.insert(ctrls, {
+    Name = "MIDI Channel",
+    ControlType = "Knob",
+    ControlUnit = "Integer",
+    Count = 1,
+    Min = 1, 
+    Max = 16,
+    DefaultValue = 1
+  })
+  return ctrls
+end
+
+--Layout of controls and graphics for the plugin UI to display
+function GetControlLayout(props)
+  local layout = {}
+  local graphics = {}
+  --local AHlogo--[[ #encode “AH-logo.png”]]
+
+  local CurrentPage = PageNames[props["page_index"].Value]
+  --*** Page "Control" ********************************************************************************************* 
+  if CurrentPage == "Control" then
+    table.insert(graphics,{
+      Type = "GroupBox",
+      Text = "Control",
+      TextSize = 15,
+      Fill = {118,178,219},
+      StrokeWidth = 1,
+      Position = {0,0},
+      Size = {1280,720}
+    })
+    table.insert(graphics,{
+      Type = "Header",
+      Text = "Scene Recall",
+      TextSize = 12,
+      Fill = {50,50,50},
+      StrokeWidth = 1,
+      Position = {10,30},
+      Size = {1260,15}
+    })
+    table.insert(graphics,{
+      Type = "Text",
+      Text = "Button",
+      TextSize = 12,
+      Position = {10,80},
+      Size = {60,24},
+      FontSize = 11,
+      HTextAlign = "Right"
+    })
+    table.insert(graphics,{
+      Type = "Text",
+      Text = "Combo Box",
+      Position = {10,154},
+      Size = {60,24},
+      TextSize = 12,
+      HTextAlign = "Right"
+    })
+    --Scene Buttons
+    for sceneIdx = 1, 25 do
+      layout["SceneButton "..sceneIdx] = {
+        PrettyName = "Buttons~Recall Scene ",
+        Style = "Button",
+        Position = {75 + 48*(sceneIdx-1), 80},
+        TextSize = 12,
+        Size = {48,24},
+        Color = {255,255,255},
+        Legend = tostring(sceneIdx)
+      }
+    end
+    --Scene Knob
+    layout["SceneKnob"] = {
+      PrettyName = "Knob~Recall Scene ",
+      Style = "ComboBox",
+      Position = {75, 154},
+      Size = {60,24},
+      Color = {110,198,241},
+      TextSize = 12,
+    }
+    --Connection Status Led Indicator
+    layout["Status"] = {
+      Style = "Led", 
+      PrettyName = "Device~Connection Status", 
+      Position = {2, 2}, 
+      Size = {16, 16},
+      Margin = 2,
+      TextSize = 12,
+  
+    }
+    table.insert(graphics,{
+      Type = "Header",
+      Text = "Inputs",
+      TextSize = 12,
+      Fill = {50,50,50},
+      StrokeWidth = 1,
+      Position = {10,210},
+      Size = {1260,15}
+    })
+    
+    table.insert(graphics,{
+      Type = "Header",
+      Text = "Outputs",
+      TextSize = 12,
+      Fill = {50,50,50},
+      StrokeWidth = 1,
+      Position = {10,480},
+      Size = {1260,15}
+    })
+    --Input Labels
+    for channelIdx = 1, 32 do
+      table.insert(graphics,{
+        Type = "Text",
+        Text = tostring(channelIdx),
+        TextSize = 12,
+        Position = {10 + 36*(channelIdx-1), 234},
+        Size = {36,36},
+        FontSize = 11,
+        HTextAlign = "Middle"
+      })
+    end 
+    for channelIdx = 1, 3 do
+      table.insert(graphics,{
+        Type = "Text",
+        Text = "ST"..tostring(channelIdx),
+        TextSize = 12,
+        Position = {1162 + 36*(channelIdx-1), 234},
+        Size = {36,36},
+        FontSize = 11,
+        HTextAlign = "Middle"
+      })
+    end 
+    --Output Labels
+    for channelIdx = 1, 4 do
+      table.insert(graphics,{
+        Type = "Text",
+        Text = tostring(channelIdx),
+        TextSize = 12,
+        Position = {10 + 36*(channelIdx-1), 504},
+        Size = {36,36},
+        FontSize = 11,
+        HTextAlign = "Middle"
+      })
+    end 
+    table.insert(graphics,{
+      Type = "Text",
+      Text = "5-6",
+      TextSize = 12,
+      Position = {154, 504},
+      Size = {36,36},
+      FontSize = 11,
+      HTextAlign = "Middle"
+    })
+    table.insert(graphics,{
+      Type = "Text",
+      Text = "7-8",
+      TextSize = 12,
+      Position = {190, 504},
+      Size = {36,36},
+      FontSize = 11,
+      HTextAlign = "Middle"
+    })
+    table.insert(graphics,{
+      Type = "Text",
+      Text = "9-10",
+      TextSize = 12,
+      Position = {226, 504},
+      Size = {36,36},
+      FontSize = 11,
+      HTextAlign = "Middle"
+    })
+    table.insert(graphics,{
+      Type = "Text",
+      Text = "LR",
+      TextSize = 12,
+      Position = {262, 504},
+      Size = {36,36},
+      FontSize = 11,
+      HTextAlign = "Middle"
+    })
+    table.insert(graphics,{
+      Type = "Text",
+      Text = "Grp 1-2",
+      TextSize = 12,
+      Position = {298, 504},
+      Size = {36,36},
+      FontSize = 11,
+      HTextAlign = "Middle"
+    })
+     
+    table.insert(graphics,{
+      Type = "Text",
+      Text = "Grp 3-4",
+      TextSize = 12,
+      Position = {334, 504},
+      Size = {36,36},
+      FontSize = 11,
+      HTextAlign = "Middle"
+    })
+    table.insert(graphics,{
+      Type = "Text",
+      Text = "Grp 5-6",
+      TextSize = 12,
+      Position = {370, 504},
+      Size = {36,36},
+      FontSize = 11,
+      HTextAlign = "Middle"
+    })
+    table.insert(graphics,{
+      Type = "Text",
+      Text = "Grp 7-8",
+      TextSize = 12,
+      Position = {406, 504},
+      Size = {36,36},
+      FontSize = 11,
+      HTextAlign = "Middle"
+    })
+    table.insert(graphics,{
+      Type = "Text",
+      Text = "MTX 1-2",
+      TextSize = 12,
+      Position = {442, 504},
+      Size = {36,36},
+      FontSize = 11,
+      HTextAlign = "Middle"
+    })
+    table.insert(graphics,{
+      Type = "Text",
+      Text = "MTX 1-2",
+      TextSize = 12,
+      Position = {478, 504},
+      Size = {36,36},
+      FontSize = 11,
+      HTextAlign = "Middle"
+    })
+    -- InputMute Buttons
+    for channelIdx = 1, 35 do
+      layout["InputMute "..channelIdx] = {
+        PrettyName = "Buttons~Input Mute ",
+        Style = "Button",
+        Position = {10 + 36*(channelIdx-1), 270},
+        TextSize = 12,
+        Size = {36,16},
+        Color = {255,0,0},
+        --Legend = tostring(sceneIdx)
+      }
+    end
+    -- InputMute Faders
+    for channelIdx = 1, 35 do
+      layout["InputFader "..channelIdx] = {
+        PrettyName = "Fader~Input Fader ",
+        Style = "Fader",
+        Position = {10 + 36*(channelIdx-1), 297},
+        TextSize = 12,
+        Size = {36,128},
+      }
+    end
+    -- OutputMute Buttons
+    for channelIdx = 1, 14 do
+      layout["OutputMute "..channelIdx] = {
+        PrettyName = "Buttons~Output Mute ",
+        Style = "Button",
+        Position = {10 + 36*(channelIdx-1), 540},
+        TextSize = 12,
+        Size = {36,16},
+        Color = {255,0,0},
+      }
+    end
+    -- OutputMute Faders
+    for channelIdx = 1, 14 do
+      layout["OutputFader "..channelIdx] = {
+        PrettyName = "Fader~Output Fader ",
+        Style = "Fader",
+        Position = {10 + 36*(channelIdx-1), 567},
+        TextSize = 12,
+        Size = {36,128},
+      }
+    end
+  
+    --*** Page "Setup" ********************************************************************************************* 
+  elseif CurrentPage == "Setup" then
+    table.insert(graphics,{
+      Type = "GroupBox",
+      Text = "Setup",
+      TextSize = 15,
+      Fill = {118,178,219},
+      StrokeWidth = 1,
+      Position = {0,0},
+      Size = {350,250}
+    })
+    --Show AH logo
+    --table.insert(graphics,{Type="Png",Image=AHlogo,Position={0,0},Size={375,80}})
+  
+    table.insert(graphics,{
+      Type = "Header",
+      Text = "Setup",
+      TextSize = 12,
+      Fill = {50,50,50},
+      StrokeWidth = 1,
+      Position = {10,30},
+      Size = {330,15}
+    })
+    table.insert(graphics,{
+      Type = "Text",
+      Text = "IP Address",
+      TextSize = 12,
+      Position = {12,80},
+      Size = {72,24},
+      HTextAlign = "Right"
+    })
+    table.insert(graphics,{
+      Type = "Text",
+      Text = "Port: 51325 ",
+      TextSize = 12,
+      Position = {12,104},
+      Size = {72,24},
+      HTextAlign = "Right"
+    })
+    table.insert(graphics,{
+      Type = "Text",
+      Text = "Status",
+      TextSize = 12,
+      Position = {12,140},
+      Size = {72,24},
+      HTextAlign = "Right"
+    })
+    table.insert(graphics,{
+      Type = "Text",
+      Text = "MIDI Channel",
+      TextSize = 12,
+      Position = {12,176},
+      Size = {72,24},
+      HTextAlign = "Right"
+    })
+    layout["IP Address"] = {
+      PrettyName = "Mixer's IP Address",
+      Style = "TextField",
+      Position = {84, 80},
+      Size = {106,24},
+      Color = {255,255,255},
+      TextSize = 12,
+    }
+  --[[   layout["Port"] = {
+      PrettyName = "Fixed at 51325",
+      Style = "TextField",
+      Position = {84, 105},
+      Size = {106,24},
+      Color = {110,198,241},
+      TextSize = 12,
+    }
+   ]]
+    layout["Status"] = {
+      PrettyName = "Connection Status",
+      Style = "Status",
+      Position = {84, 138},
+      Size = {230,24}
+      --Color = {194,194,194},
+      --IsReadOnly = true
+    }
+    layout["MIDI Channel"] = {
+      PrettyName = "MIDI Channel (Setup on Mixer)",
+      Style = "ComboBox",
+      Position = {84, 176},
+      Size = {60,24},
+      Color = {110,198,241},
+      TextSize = 12,
+    }
+  end
+  return layout, graphics
+end
+
+--Start event based logic
+if Controls then
+  --Johnny Zhu
+  --jianyezhu@qq.com
+  --2021.08.30
+  --------------------------------------------------------------------
+  -- UI variables
+  --------------------------------------------------------------------
+  -- controls
+  --btn_enable = Controls["Enable"]
+  knob_midichannel = Controls["MIDI Channel"]
+  
+  btn_scene = Controls["SceneButton"]
+  knob_scene = Controls["SceneKnob"]
+  -- btn_scene = Controls.SceneButton
+  -- knob_scene = Controls.SceneKnob
+  
+  btn_inputmute = Controls["InputMute"]
+  fader_inputfader = Controls["InputFader"]
+  btn_outputmute = Controls["OutputMute"]
+  fader_outputfader = Controls["OutputFader"]
+  
+  --Connection Status
+  stat_details = Controls["Status"]
+  --[[ Status.Value:
+  5-Initializing-blue	
+  4-Missing	-#C00000	
+  3-Not Present-gray	
+  2-Fault-red	
+  1-Compromised-orange	
+  0-OK-green	
+  ]]--
+  
+  -- TCP/UCP connection
+  txt_address = Controls["IP Address"]
+  knb_port = Controls["Port"]
+  knb_port.Value = 51325
+  
+  
+  --------------------------------------------------------------------
+  -- Other variables and CONSTANTS
+  --------------------------------------------------------------------
+  --Global Variables
+  tx = ""
+  midiChannel = knob_midichannel.Value -1 
+  
+  --CONSTANTS
+  --STX = "\x02"
+  ETX = ""
+  --ETX = "\x0D\x0A"
+  
+  -- commands to device
+  
+  --------------------------------------------------------------------
+  -- Function Definition
+  --------------------------------------------------------------------
+  function DebugFormatHex(string,hex) -- Format strings containing non-printable characters so we can see what they are
+    local visual = ""
+    local format = hex~=nil and "\\x%02x" or "[%02X]" --hex==nil: format="[%02X]";  hex~=nil: format="\\x%02x"
+    for i=1,#string do
+      local byte = string:sub(i,i)
+      visual = visual..string.format(format,string.byte(byte))
+    end
+    return visual
+  end
+  
+  --------------------------------------------------------------------
+  -- Socket Connection
+  --------------------------------------------------------------------
+  -- socket
+  sock = TcpSocket.New()
+  sock.ReadTimeout = 0
+  sock.WriteTimeout = 0
+  sock.ReconnectTimeout = 5
+  sock:Connect(txt_address.String, knb_port.Value)
+  
+  -- send data
+  function send(data)
+    --print("sending: "..data)
+    tx = data
+    sock:Connect(txt_address.String, knb_port.Value)
+  end
+  
+  -- report connection details to gui
+  function connStat(message, severity)
+    stat_details.Value = severity
+    stat_details.String = message
+    
+    if severity == 2 then
+      Log.Error(string.format("%s:%s\t%s", txt_address.String, knb_port.String, message))
+    end
+  end
+  
+  -- do when event is data
+  function parseResponse()
+    
+    rx = sock:Read(sock.BufferLength)
+    
+    if rx ~= nil then
+      print("received: "..DebugFormatHex(rx))
+      stat_details.String = "RX: "..DebugFormatHex(rx)
+      -- do something with data here
+    end
+    
+    --sock:Disconnect()
+    --connStat("socket closed by client", 1)
+  end
+      
+  sock.EventHandler = function(sock, evt, err)
+    if evt == TcpSocket.Events.Connected then -- Connected
+      connStat("TX: "..DebugFormatHex(tx), 0)
+      sock:Write(tx)
+      print("sending: "..DebugFormatHex(tx) )
+  
+    elseif evt == TcpSocket.Events.Reconnect then -- Reconnecting
+      connStat("socket reconnecting...", 5)
+    elseif evt == TcpSocket.Events.Data then  -- Data
+      connStat("data received from remote", 0)
+      parseResponse()   
+    elseif evt == TcpSocket.Events.Closed then  -- Closed by remote
+      connStat("socket closed by remote", 4)
+    elseif evt == TcpSocket.Events.Error then -- Error
+      connStat("socket closed due to error", 2)
+    elseif evt == TcpSocket.Events.Timeout then -- Timeout
+      connStat("socket closed due to timeout", 3)
+    end  
+  end
+  
+  --------------------------------------------------------------------
+  -- Event Handlers
+  --------------------------------------------------------------------
+  
+  --btn_enable.EventHandler = function()
+    --send(enable) 
+    --end
+  knob_midichannel.EventHandler = function()
+    midiChannel = knob_midichannel.Value -1 
+    print("MIDI Channel = "..string.format("0x%02X", midiChannel) )
+    end
+  
+  --[[
+  for i=1, #btn_scene do
+    btn_scene[i].EventHandler = function()
+      send(scene[i])
+    end
+  end
+  ]]--  
+  for i=1, #btn_scene do
+    btn_scene[i].EventHandler = function()
+      if btn_scene[i].Boolean == true then
+        tx = string.format("%c", 0xB0 + midiChannel).."\x00\x00"..string.format("%c", 0xB0 + midiChannel).."\x20\x00"..string.format("%c", 0xC0 + midiChannel)..string.format("%c", i-1)..ETX
+        send(tx)
+      end
+    end
+  end
+  
+  knob_scene.EventHandler = function()
+    tx = string.format("%c", 0xB0 + midiChannel).."\x00\x00"..string.format("%c", 0xB0 + midiChannel).."\x20\x00"..string.format("%c", 0xC0 + midiChannel)..string.format("%c", knob_scene.Value -1)..ETX
+    send(tx)
+    end
+    
+  --Mute on   9N, CH, 7F,     8N, CH, 00
+  --Mute off  9N, CH, 3F,     8N, CH, 00 
+  for i=1, #btn_inputmute do
+    btn_inputmute[i].EventHandler = function()
+        if btn_inputmute[i].Boolean == true then  --on
+          tx = string.format("%c", 0x90 + midiChannel)..string.format("%c", 0x1F + i).."\x7F"..string.format("%c", 0x80 + midiChannel)..string.format("%c", 0x1F + i).."\x00"..ETX
+        else
+          tx = string.format("%c", 0x90 + midiChannel)..string.format("%c", 0x1F + i).."\x3F"..string.format("%c", 0x80 + midiChannel)..string.format("%c", 0x1F + i).."\x00"..ETX
+        end
+      send(tx)
+    end
+  end
+  
+  for i=1, #btn_outputmute do
+    btn_outputmute[i].EventHandler = function()
+        if btn_outputmute[i].Boolean == true then  --on
+          tx = string.format("%c", 0x90 + midiChannel)..string.format("%c", 0x5F + i).."\x7F"..string.format("%c", 0x80 + midiChannel)..string.format("%c", 0x5F + i).."\x00"..ETX
+        else
+          tx = string.format("%c", 0x90 + midiChannel)..string.format("%c", 0x5F + i).."\x3F"..string.format("%c", 0x80 + midiChannel)..string.format("%c", 0x5F + i).."\x00"..ETX
+        end
+      send(tx)
+    end
+  end
+  
+  --Fader     BN, 63, CH, BN, 62, 17, BN, 06, VA BN, 26, 07 
+  for i=1, #fader_inputfader do
+    fader_inputfader[i].EventHandler = function()
+      tx = string.format("%c", 0xB0 + midiChannel).."\x63"..string.format("%c", 0x1F + i)..string.format("%c", 0xB0 + midiChannel).."\x62\x17"..string.format("%c", 0xB0 + midiChannel).."\x06"..string.format("%c", fader_inputfader[i].Value)..string.format("%c", 0xB0 + midiChannel).."\x26\x07"..ETX
+      send(tx)
+    end
+  end
+  
+  for i=1, #fader_outputfader do
+    fader_outputfader[i].EventHandler = function()
+      tx = string.format("%c", 0xB0 + midiChannel).."\x63"..string.format("%c", 0x5F + i)..string.format("%c", 0xB0 + midiChannel).."\x62\x17"..string.format("%c", 0xB0 + midiChannel).."\x06"..string.format("%c", fader_outputfader[i].Value)..string.format("%c", 0xB0 + midiChannel).."\x26\x07"..ETX
+      send(tx)
+    end
+  end
+  
+end
