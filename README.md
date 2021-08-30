@@ -20,3 +20,4 @@ Qu-SB is the mix engine of the Qu-32 in a compact rack mountable format.
 
 Johnny Zhu
 2021-08-30
+<https://bitbucket.org/JianyeZhu/allen-heath-qu-mixer-plugin>
