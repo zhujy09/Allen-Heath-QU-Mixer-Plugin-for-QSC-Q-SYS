@@ -1,6 +1,6 @@
 # Notes
 
-1. This is my first plugin. I still didn't figure out how to add a png image to the plugin.
+1. This is my first plugin.
 2. This plugin is one-way communication only. It doesn't process the messages from the mixer.
 3. QSC hardware is NOT required to test the plugin.
 4. Type the Qu mixer's IP address into the qsys module.
