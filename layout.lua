@@ -205,7 +205,7 @@ if CurrentPage == "Control" then
   })
   table.insert(graphics,{
     Type = "Text",
-    Text = "MTX 1-2",
+    Text = "MTX 3-4",
     TextSize = 12,
     Position = {478, 504},
     Size = {36,36},
