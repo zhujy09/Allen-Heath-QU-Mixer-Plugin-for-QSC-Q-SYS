@@ -75,8 +75,6 @@ end
 function GetControlLayout(props)
   local layout = {}
   local graphics = {}
-  --local AHlogo--[[ #encode “AH-logo.png”]]
-
   --[[ #include "layout.lua" ]]
   return layout, graphics
 end

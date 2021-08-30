@@ -268,7 +268,21 @@ elseif CurrentPage == "Setup" then
     Size = {350,250}
   })
   --Show AH logo
-  --table.insert(graphics,{Type="Png",Image=AHlogo,Position={0,0},Size={375,80}})
+  local AHLogo = "--[[ #encode "AHlogo.png" ]]"
+  table.insert(graphics,{
+    Type="Image",
+    Image=AHLogo,
+    Position={205,220},
+    Size={141,30}
+  })
+  --Show Qu logo
+  local QuLogo = "--[[ #encode "Qulogo.png" ]]"
+  table.insert(graphics,{
+    Type="Image",
+    Image=QuLogo,
+    Position={228,0},
+    Size={115,67}
+  })
 
   table.insert(graphics,{
     Type = "Header",
@@ -277,7 +291,7 @@ elseif CurrentPage == "Setup" then
     Fill = {50,50,50},
     StrokeWidth = 1,
     Position = {10,30},
-    Size = {330,15}
+    Size = {205,15}
   })
   table.insert(graphics,{
     Type = "Text",
