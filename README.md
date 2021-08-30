@@ -8,7 +8,7 @@
 6. This module may not run simultaneously with iPad Qu-pad app.
 7. This is based on QU_MIDI_Protocol_v1.9 which requires the Qu mixer loaded with firmware version V1.9 or later.
 8. This plugin is designed to work with all Qu models.
-9. This plugin has been tested by the FB group members with real QU mixer.
+9. The lua script has been tested by the FB group members with real QU mixer.
 
 MIDI over TCP/IP
 <https://www.allen-heath.com/thirdpartycontrol/>
