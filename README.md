@@ -1,6 +1,6 @@
 # Notes
 
-<https://bitbucket.org/JianyeZhu/allen-heath-qu-mixer-plugin/src/master/Screenshot.jpg>
+[Screenshot](https://bitbucket.org/JianyeZhu/allen-heath-qu-mixer-plugin/src/master/Screenshot.jpg)
 
 1. This is my first plugin.
 2. This plugin is one-way communication only. It doesn't process the messages from the mixer.
