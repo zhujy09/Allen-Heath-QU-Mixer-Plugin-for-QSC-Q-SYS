@@ -1,4 +1,4 @@
-![Screenshot](https://bitbucket.org/JianyeZhu/allen-heath-qu-mixer-plugin/src/master/Screenshot.jpg)
+![Screenshot](https://bitbucket.org/JianyeZhu/allen-heath-qu-mixer-plugin/raw/7b819819f65fc1be77db9fee02bb1f216b99e2a5/Screenshot.jpg)
 
 # Notes
 
@@ -12,7 +12,7 @@
 8. This plugin is designed to work with all Qu models.
 9. This runtime lua script has been tested by the FB group members with real QU mixer.
 
-MIDI over TCP/IP
+## MIDI over TCP/IP
 
 <https://www.allen-heath.com/thirdpartycontrol/>
 
@@ -23,4 +23,5 @@ Qu-SB is the mix engine of the Qu-32 in a compact rack mountable format.
 
 Johnny Zhu
 2021-08-30
+
 <https://bitbucket.org/JianyeZhu/allen-heath-qu-mixer-plugin>
