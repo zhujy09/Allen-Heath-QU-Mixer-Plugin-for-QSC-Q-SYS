@@ -1,6 +1,8 @@
+# Screenshot
+
 ![Screenshot](https://bitbucket.org/JianyeZhu/allen-heath-qu-mixer-plugin/raw/7b819819f65fc1be77db9fee02bb1f216b99e2a5/Screenshot.jpg)
 
-# Notes
+## Notes
 
 1. This is my first plugin.
 2. This plugin is one-way communication only. It doesn't process the messages from the mixer.
@@ -19,6 +21,7 @@
 <https://www.allen-heath.com/media/Qu_MIDI_Protocol_V1.9.pdf>
 
 Qu-Pac is the mix engine of the Qu-32 in a compact rack mountable format.
+
 Qu-SB is the mix engine of the Qu-32 in a compact rack mountable format.
 
 Johnny Zhu
