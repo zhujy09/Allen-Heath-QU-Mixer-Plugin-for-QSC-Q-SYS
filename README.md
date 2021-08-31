@@ -14,6 +14,10 @@
 8. This plugin is designed to work with all Qu models.
 9. This runtime lua script has been tested by the FB group members with real QU mixer.
 
+Johnny Zhu
+
+2021-08-30
+
 ## MIDI over TCP/IP
 
 <https://www.allen-heath.com/thirdpartycontrol/>
@@ -24,7 +28,6 @@ Qu-Pac is the mix engine of the Qu-32 in a compact rack mountable format.
 
 Qu-SB is the mix engine of the Qu-32 in a compact rack mountable format.
 
-Johnny Zhu
-2021-08-30
+## Link to this repository
 
 <https://bitbucket.org/JianyeZhu/allen-heath-qu-mixer-plugin>
