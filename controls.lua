@@ -2,7 +2,7 @@ table.insert(ctrls, {
   Name = "SceneButton",
   ControlType = "Button",
   ButtonType = "Momentary",
-  Count = 25,
+  Count = 100,
   --UserPin = true,
   --PinStyle = "Input",
   Icon = "<NONE>"

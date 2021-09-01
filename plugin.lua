@@ -12,7 +12,7 @@ end
 
 -- The name that will initially display when dragged into a design
 function GetPrettyName(props)
-  return "Allen & Heath~QU Mixer, version " .. PluginInfo.Version
+  return "Allen&Heath~QU Mixer, version " .. PluginInfo.Version
 end
 
 -- Optional function used if plugin has multiple pages

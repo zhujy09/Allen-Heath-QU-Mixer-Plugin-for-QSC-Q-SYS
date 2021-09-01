@@ -6,6 +6,7 @@ if CurrentPage == "Control" then
     Text = "Control",
     TextSize = 15,
     Fill = {118,178,219},
+    CornerRadius = 8,
     StrokeWidth = 1,
     Position = {0,0},
     Size = {1280,720}
@@ -23,8 +24,8 @@ if CurrentPage == "Control" then
     Type = "Text",
     Text = "Button",
     TextSize = 12,
-    Position = {10,80},
-    Size = {60,24},
+    Position = {10,55},
+    Size = {50,24},
     FontSize = 11,
     HTextAlign = "Right"
   })
@@ -32,12 +33,12 @@ if CurrentPage == "Control" then
     Type = "Text",
     Text = "Combo Box",
     Position = {10,154},
-    Size = {60,24},
+    Size = {50,24},
     TextSize = 12,
     HTextAlign = "Right"
   })
   --Scene Buttons
-  for sceneIdx = 1, 25 do
+--[[   for sceneIdx = 1, 25 do
     layout["SceneButton "..sceneIdx] = {
       PrettyName = "Buttons~Recall Scene ",
       Style = "Button",
@@ -48,11 +49,26 @@ if CurrentPage == "Control" then
       Legend = tostring(sceneIdx)
     }
   end
+ ]]
+  for scn = 0, 99 do
+    local row = 1 + math.floor(scn / 25) 
+    local col = 1 + (scn % 25) 
+    layout["SceneButton " .. scn+1] = {
+      PrettyName = "Recall Scene " .. string.format("%d", scn+1),
+      Style = "Button",
+      Color = {255,255,255},
+      Legend = "S "..(scn+1),
+      Position = {65 + (48 * (col - 1)),
+                  55 + (24 * (row - 1))},
+      Size = {48, 24}
+    }
+  end
+  
   --Scene Knob
   layout["SceneKnob"] = {
-    PrettyName = "Knob~Recall Scene ",
+    PrettyName = "Recall Scene ",
     Style = "ComboBox",
-    Position = {75, 154},
+    Position = {65, 154},
     Size = {60,24},
     Color = {110,198,241},
     TextSize = 12,
@@ -60,7 +76,7 @@ if CurrentPage == "Control" then
   --Connection Status Led Indicator
   layout["Status"] = {
     Style = "Led", 
-    PrettyName = "Device~Connection Status", 
+    PrettyName = "Status", 
     Position = {2, 2}, 
     Size = {16, 16},
     Margin = 2,
@@ -263,6 +279,7 @@ elseif CurrentPage == "Setup" then
     Text = "Setup",
     TextSize = 15,
     Fill = {118,178,219},
+    CornerRadius = 8,
     StrokeWidth = 1,
     Position = {0,0},
     Size = {350,250}
@@ -343,7 +360,7 @@ elseif CurrentPage == "Setup" then
   }
  ]]
   layout["Status"] = {
-    PrettyName = "Connection Status",
+    PrettyName = "Status",
     Style = "Status",
     Position = {84, 138},
     Size = {230,24}
