@@ -1,6 +1,6 @@
 # Screenshot
 
-![Screenshot](https://bitbucket.org/JianyeZhu/allen-heath-qu-mixer-plugin/raw/7b819819f65fc1be77db9fee02bb1f216b99e2a5/Screenshot.jpg)
+![Screenshot](https://bitbucket.org/JianyeZhu/allen-heath-qu-mixer-plugin/raw/97a3c5b4ef80da8cfce550843d0f1abbf813aeae/Screenshot.jpg)
 
 ## Notes
 
